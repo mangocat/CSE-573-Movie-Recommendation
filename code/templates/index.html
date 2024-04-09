@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie Recommendation</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+            font-family: Arial, sans-serif; /* Add a default font */
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px; /* Increase spacing */
+            width: 100%;
+            max-width: 400px; /* Set a max width and center */
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Optional: add a subtle shadow */
+            border-radius: 8px; /* Optional: round the corners */
+            background-color: #fff; /* Add a background color */
+        }
+        button {
+            cursor: pointer;
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        p {
+            margin-top: 20px; /* Add some spacing between the form and the result */
+            color: #333; /* Set a text color */
+            font-size: 16px; /* Set a font size */
+        }
+    </style>
+</head>
+<body>
+    <h1>Movie Recommendation</h1>
+    <form method="post">
+        <div>
+            <label for="algorithm">Choose an Algorithm:</label>
+            <select name="algorithm" id="algorithm">
+                <option value="Matrix Factorization">Matrix Factorization</option>
+                <option value="K-Nearest Neighbors">K-Nearest Neighbors</option>
+                <option value="Deep Neural Networks">Deep Neural Networks</option>
+            </select>
+        </div>
+        <div>
+            <label for="input_type">Input Type:</label>
+            <select name="input_type" id="input_type">
+                <option value="User">User</option>
+                <option value="Movie">Movie</option>
+            </select>
+        </div>
+        <div>
+            <label for="user_input">Input:</label>
+            <input type="text" id="user_input" name="user_input">
+        </div>
+        <button type="submit">Submit</button>
+    </form>
+    <!-- 结果部分现在包含基本样式 -->
+    {% if result %}
+        <pre>Result: {{ result }}</pre>
+    {% endif %}
+</body>
+</html>
