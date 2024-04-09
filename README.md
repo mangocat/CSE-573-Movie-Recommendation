@@ -14,3 +14,12 @@
 
 **Run** __python3 app.py__ and host your local with 127.0.0.1
 the UI would be index.html which includes all the interactions and the discussed different scenarios
+
+**Requirements**
+
+flask
+render_template
+request
+numpy
+pandas
+pickle
