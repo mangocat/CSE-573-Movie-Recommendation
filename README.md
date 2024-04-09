@@ -16,10 +16,10 @@
 <br>the UI would be index.html which includes all the interactions and the discussed different scenarios
 
 **Requirements**
-
-flask
-render_template
-request
-numpy
-pandas
-pickle
+<br>
+flask<br>
+render_template<br>
+request<br>
+numpy<br>
+pandas<br>
+pickle<br>
