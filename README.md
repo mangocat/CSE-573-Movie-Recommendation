@@ -12,7 +12,7 @@
 
 -> directly clone the repo and enter the code path
 
-**Run** __python3 app.py__ and host your local with 127.0.0.1
+**Run** `python3 app.py` and host your local with 127.0.0.1
 the UI would be index.html which includes all the interactions and the discussed different scenarios
 
 **Requirements**
