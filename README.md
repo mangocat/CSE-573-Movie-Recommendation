@@ -1,11 +1,11 @@
 # CSE 573 Movie Recommendation
 
 - code
-  store all the different algorithms model and inference code with a backend Flask UI
+  -> store all the different algorithms model and inference code with a backend Flask UI
 - data
-  store the MovieLens 1M datasets with movies, users, ratings
+  -> store the MovieLens 1M datasets with movies, users, ratings
 - evaluation
-  store the evaluation chart and output csv with DNN model
+  -> store the evaluation chart and output csv with DNN model
 
 ***
 **How to run the code ?**
