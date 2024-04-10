@@ -245,6 +245,10 @@ def deep_neural_networks(user_type, user_input):
 @app.route("/", methods=["GET", "POST"])
 def home():
     result = ""  # 用于存储处理结果
+    user_input = "" 
+    algorithm = ""
+    user_type = ""
+    
     if request.method == "POST":
         algorithm = request.form.get("algorithm")
         user_type = request.form.get("input_type")
@@ -266,7 +270,7 @@ def home():
         elif algorithm == "Deep Neural Networks" and user_type == "Movie":
             result = recommend_movies_DNN(user_input)
 
-    return render_template("index.html", result=result)
+    return render_template("index.html", result=result, user_input=user_input, algorithm=algorithm, user_type=user_type)
 
 if __name__ == "__main__":
     app.run(debug=True)
