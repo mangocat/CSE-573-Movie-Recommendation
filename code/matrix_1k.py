@@ -7,13 +7,13 @@ import collections
 
 
 # Save users DataFrame
-users= pd.read_csv('./data/users_100k.csv')
+users= pd.read_csv('../data/users_100k.csv')
 
 # Save movies DataFrame
-movies= pd.read_csv('./data/movies_100k.csv')
+movies= pd.read_csv('../data/movies_100k.csv')
 
 # Save ratings DataFrame
-ratings= pd.read_csv('./data/ratings_100k.csv')
+ratings= pd.read_csv('../data/ratings_100k.csv')
 
 # Create one merged DataFrame containing all the movielens data.
 movielens = ratings.merge(movies, on='movie_id').merge(users, on='user_id')

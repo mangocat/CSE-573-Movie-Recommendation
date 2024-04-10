@@ -7,11 +7,11 @@ from sklearn.model_selection import train_test_split
 print(tf.__version__)
 
 # 加载数据
-ratings = pd.read_csv("./data/ratings.csv")
-movies = pd.read_csv('./data/movies.csv')
-tags = pd.read_csv('./data/tags.csv')
-genome_scores = pd.read_csv('./data/genome-scores.csv')
-genome_tags = pd.read_csv('./data/genome-tags.csv')
+ratings = pd.read_csv("../data/ratings.csv")
+movies = pd.read_csv('../data/movies.csv')
+tags = pd.read_csv('../data/tags.csv')
+genome_scores = pd.read_csv('../data/genome-scores.csv')
+genome_tags = pd.read_csv('../data/genome-tags.csv')
 
 # 假设这些DataFrame已经按照您的需求进行了适当的处理
 

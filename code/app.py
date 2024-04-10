@@ -8,25 +8,26 @@ import csv
 from matrix_1k import matrix_model, user_recommendations, movie_neighbors
 app = Flask(__name__)
 
-movies_DNN = pd.read_csv('./data/movies.dat', sep='::', engine='python', encoding='latin-1', names=['movieId', 'title', 'genres'])
-### Matrix_Movie_10M start from here
-with open('./code/case_insensitive_movies_list.pkl', 'rb') as f:
+movies_DNN = pd.read_csv('../data/movies.dat', sep='::', engine='python', encoding='latin-1', names=['movieId', 'title', 'genres'])
+
+### Matrix_Movie_1M start from here
+with open('case_insensitive_movies_list.pkl', 'rb') as f:
 
     case_insensitive_movies_list = pickle.load(f)
 
-with open('./code/unique_movies.pkl', 'rb') as f:
+with open('unique_movies.pkl', 'rb') as f:
     unique_movies = pickle.load(f)
 
-with open('./code/U.pkl', 'rb') as f:
+with open('U.pkl', 'rb') as f:
     U = pickle.load(f)
 
-with open('./code/S.pkl', 'rb') as f:
+with open('S.pkl', 'rb') as f:
     S = pickle.load(f)
 
-with open('./code/V.pkl', 'rb') as f:
+with open('V.pkl', 'rb') as f:
     V = pickle.load(f)
 
-with open('./code/movies_dict.pkl', 'rb') as f:
+with open('movies_dict.pkl', 'rb') as f:
     movies_dict = pickle.load(f)
 
 def get_user_recommendations(user_id, number_of_results):
@@ -116,14 +117,14 @@ def recommender(user_input):
         for i, suggestion in enumerate(suggestions, 1):  # 从1开始计数
             suggestions_str += f"    {i}. {suggestion}\n"
         return suggestions_str
-### Matrix_Movie_10M End
+### Matrix_Movie_1M End
 
 
-### Matrix_User_10M Start from here
-with open('./code/top_n.pkl', 'rb') as f:
+### Matrix_User_1M Start from here
+with open('top_n.pkl', 'rb') as f:
     top_n = pickle.load(f)
 
-with open('./code/df_movie.pkl', 'rb') as f:
+with open('df_movie.pkl', 'rb') as f:
     df_movie = pickle.load(f)
 
 def giverUsr(userid):
@@ -141,7 +142,7 @@ def giverUsr(userid):
             movie_str = '\n'.join(movie_titles)
             movie_str = '\n' + movie_str if movie_str else ''  
     return movie_str
-### Matrix_User_10M End
+### Matrix_User_1M End
 
 ### Matrix_100k Start
 Matrix_100k_model = matrix_model()
@@ -164,6 +165,79 @@ def giverUsr_100k(userid):
     movie_str = '\n' + movie_str if movie_str else ''  
     return movie_str
 ### Matrix_100k End
+
+### knn preparing start
+movieId2Idx = {movies_DNN.movieId[i]: i for i in range(len(movies_DNN))}
+
+overviewsPath = 'overview.csv'
+overview = pd.read_csv(overviewsPath)
+from sklearn.feature_extraction.text import TfidfVectorizer
+corpus = overview["overview"].fillna("")
+vectorizer = TfidfVectorizer(stop_words='english')
+vectors = vectorizer.fit_transform(corpus)
+from sklearn.metrics.pairwise import linear_kernel
+knnCosineSims = linear_kernel(vectors, vectors)
+
+with open('topRatedIdx.pickle', 'rb') as f:
+    topRatedIdx = pickle.load(f)
+with open('watchedIdx.pickle', 'rb') as f:
+    watchedIdx = pickle.load(f)
+### knn preparing end
+
+### kNN_User Start
+def meanSim(idxList, cosineSims):
+    sim = np.zeros(cosineSims[0].shape)
+    for idx in idxList:
+        sim += cosineSims[idx]
+    sim /= len(idxList)
+    return sim
+
+def knnUser(userId, k=10):
+    try:
+        userId = int(userId)
+    except ValueError:
+        return f"Please enter an integer between 1 and 6040."
+    
+    if userId < 1 or userId > 6040:
+        return f"Please enter an integer between 1 and 6040."
+    
+    ret = f"Recommending for userId: {userId}.\n\n"
+
+    topRatedSim = meanSim(topRatedIdx[userId-1], knnCosineSims)
+    similarIdx = (-topRatedSim).argsort()
+
+    recommendIdxList = []
+    for idx in similarIdx:
+        if idx in watchedIdx[userId-1]:
+            continue
+        recommendIdxList.append(idx)
+        if len(recommendIdxList) == k:
+            break
+
+    ret += "\n".join(f"{i+1}. {movies_DNN.title[idx]}" for i, idx in enumerate(recommendIdxList))
+    return ret
+### kNN_User End
+
+### kNN_Movie Start
+def knnMovie(movieIdx, k=10):
+    try:
+        movieIdx = int(movieIdx)
+    except ValueError:
+        return f"Please enter a movie index between 0 and {len(movies_DNN)-1}."
+    
+    if movieIdx < 0 or movieIdx >= len(movies_DNN):
+        return f"Please enter a movie index between 0 and {len(movies_DNN)-1}."
+    
+    return recommend(movieIdx, k)
+
+def recommend(targetIdx, k=10):
+    ret = f'Recommending movies that are similar to "{movies_DNN.title[targetIdx]}":\n\n'
+
+    cosineSim = knnCosineSims[targetIdx]
+    similarMovies = (-cosineSim).argsort()[1:k+1]
+    ret += "\n".join(f'{i+1}. {movies_DNN.title[idx]}' for i, idx in enumerate(similarMovies))
+    return ret
+### kNN_Movie End
 
 ### DNN_User Start
 def get_user_recommendations_DNN(user_id):
@@ -233,7 +307,6 @@ def recommend_movies_DNN(movie_name):
         return suggestions
 ### DNN_Movie End
 
-
 def k_nearest_neighbors(user_type, user_input):
     # 实现细节...
     return f"K-Nearest Neighbors for {user_type} with input: {user_input}"
@@ -263,8 +336,10 @@ def home():
             result = recommender_100k(user_input)
         elif algorithm == "Matrix Factorization 100k" and user_type == "User":
             result = giverUsr_100k(user_input)           
-        elif algorithm == "K-Nearest Neighbors":
-            result = k_nearest_neighbors(user_type, user_input)
+        elif algorithm == "K-Nearest Neighbors" and user_type == "Movie":
+            result = knnMovie(user_input)
+        elif algorithm == "K-Nearest Neighbors" and user_type == "User":
+            result = knnUser(user_input)
         elif algorithm == "Deep Neural Networks" and user_type == "User":
             result = get_user_recommendations_DNN(user_input)
         elif algorithm == "Deep Neural Networks" and user_type == "Movie":
