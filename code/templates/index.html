@@ -64,22 +64,22 @@
         <div>
             <label for="algorithm">Choose an Algorithm:</label>
             <select name="algorithm" id="algorithm">
-                <option value="Matrix Factorization 1M">Matrix Factorization (data:1M)</option>
-                <option value="Matrix Factorization 100k">Matrix Factorization (data:100k)</option>
-                <option value="K-Nearest Neighbors">K-Nearest Neighbors</option>
-                <option value="Deep Neural Networks">Deep Neural Networks</option>
+                <option value="Matrix Factorization 1M" {% if algorithm == "Matrix Factorization 1M" %}selected{% endif %}>Matrix Factorization (data:1M)</option>
+                <option value="Matrix Factorization 100k" {% if algorithm == "Matrix Factorization 100k" %}selected{% endif %}>Matrix Factorization (data:100k)</option>
+                <option value="K-Nearest Neighbors" {% if algorithm == "K-Nearest Neighbors" %}selected{% endif %}>K-Nearest Neighbors</option>
+                <option value="Deep Neural Networks" {% if algorithm == "Deep Neural Networks" %}selected{% endif %}>Deep Neural Networks</option>
             </select>
         </div>
         <div>
             <label for="input_type">Input Type:</label>
             <select name="input_type" id="input_type">
-                <option value="User">User</option>
-                <option value="Movie">Movie</option>
+                <option value="User" {% if user_type == "User" %}selected{% endif %}>User</option>
+                <option value="Movie" {% if user_type == "Movie" %}selected{% endif %}>Movie</option>
             </select>
         </div>
         <div>
             <label for="user_input">Input:</label>
-            <input type="text" id="user_input" name="user_input">
+            <input type="text" id="user_input" name="user_input" value="{{ user_input }}">
         </div>
         <button type="submit">Submit</button>
     </form>
