@@ -5,27 +5,28 @@ from collections import defaultdict
 import pandas as pd
 import csv
 # import surprise
-
+from matrix_1k import matrix_model, user_recommendations, movie_neighbors
 app = Flask(__name__)
 
-movies_DNN = pd.read_csv('./movies.dat', sep='::', engine='python', encoding='latin-1', names=['movieId', 'title', 'genres'])
-### Matrix_Movie start from here
-with open('case_insensitive_movies_list.pkl', 'rb') as f:
+movies_DNN = pd.read_csv('./data/movies.dat', sep='::', engine='python', encoding='latin-1', names=['movieId', 'title', 'genres'])
+### Matrix_Movie_10M start from here
+with open('./code/case_insensitive_movies_list.pkl', 'rb') as f:
+
     case_insensitive_movies_list = pickle.load(f)
 
-with open('unique_movies.pkl', 'rb') as f:
+with open('./code/unique_movies.pkl', 'rb') as f:
     unique_movies = pickle.load(f)
 
-with open('U.pkl', 'rb') as f:
+with open('./code/U.pkl', 'rb') as f:
     U = pickle.load(f)
 
-with open('S.pkl', 'rb') as f:
+with open('./code/S.pkl', 'rb') as f:
     S = pickle.load(f)
 
-with open('V.pkl', 'rb') as f:
+with open('./code/V.pkl', 'rb') as f:
     V = pickle.load(f)
 
-with open('movies_dict.pkl', 'rb') as f:
+with open('./code/movies_dict.pkl', 'rb') as f:
     movies_dict = pickle.load(f)
 
 def get_user_recommendations(user_id, number_of_results):
@@ -115,14 +116,14 @@ def recommender(user_input):
         for i, suggestion in enumerate(suggestions, 1):  # 从1开始计数
             suggestions_str += f"    {i}. {suggestion}\n"
         return suggestions_str
-### Matrix_Movie End
+### Matrix_Movie_10M End
 
 
-### Matrix_User Start from here
-with open('top_n.pkl', 'rb') as f:
+### Matrix_User_10M Start from here
+with open('./code/top_n.pkl', 'rb') as f:
     top_n = pickle.load(f)
 
-with open('df_movie.pkl', 'rb') as f:
+with open('./code/df_movie.pkl', 'rb') as f:
     df_movie = pickle.load(f)
 
 def giverUsr(userid):
@@ -140,7 +141,29 @@ def giverUsr(userid):
             movie_str = '\n'.join(movie_titles)
             movie_str = '\n' + movie_str if movie_str else ''  
     return movie_str
-### Matrix_User End
+### Matrix_User_10M End
+
+### Matrix_100k Start
+Matrix_100k_model = matrix_model()
+def recommender_100k(movie_name):
+    movie_list = movie_neighbors(Matrix_100k_model , movie_name)
+    print(movie_list)
+    if movie_list == []:
+        return "No movie with that title"
+    movie_str = '\n'.join(movie_list)
+    movie_str = '\n' + movie_str if movie_str else ''  
+    return movie_str
+    
+def giverUsr_100k(userid):
+    try:
+        userid = int(userid)
+    except ValueError:
+        return "Please input integer for userID"
+    movie_list = user_recommendations(Matrix_100k_model , id=int(userid))
+    movie_str = '\n'.join(movie_list)
+    movie_str = '\n' + movie_str if movie_str else ''  
+    return movie_str
+### Matrix_100k End
 
 ### DNN_User Start
 def get_user_recommendations_DNN(user_id):
@@ -228,10 +251,14 @@ def home():
         user_input = request.form.get("user_input")
 
         # 根据用户选择的算法调用对应的函数
-        if algorithm == "Matrix Factorization" and user_type == "Movie":
+        if algorithm == "Matrix Factorization 1M" and user_type == "Movie":
             result = recommender(user_input)
-        elif algorithm == "Matrix Factorization" and user_type == "User":
+        elif algorithm == "Matrix Factorization 1M" and user_type == "User":
             result = giverUsr(user_input)      
+        elif algorithm == "Matrix Factorization 100k" and user_type == "Movie":
+            result = recommender_100k(user_input)
+        elif algorithm == "Matrix Factorization 100k" and user_type == "User":
+            result = giverUsr_100k(user_input)           
         elif algorithm == "K-Nearest Neighbors":
             result = k_nearest_neighbors(user_type, user_input)
         elif algorithm == "Deep Neural Networks" and user_type == "User":
