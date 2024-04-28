@@ -239,6 +239,41 @@ def recommend(targetIdx, k=10):
     return ret
 ### kNN_Movie End
 
+### kNN_UserMovie Start
+def knnUserMovie(user_input, k=10, userWeight=0.9):
+    inputs = user_input.split(';')
+    errorMsg = f'Input error. Usage: <User ID>;<Movie Index>.\nUser ID ranges from 1 to 6040 and Movie Index ranges from 0 to {len(movies_DNN)-1}.'
+    if len(inputs)!=2:
+        return errorMsg
+    try:
+        userId = int(inputs[0])
+        movieIdx = int(inputs[1])
+    except ValueError:
+        return errorMsg
+    if userId < 1 or userId > 6040:
+        return f"User ID error. Please enter an integer between 1 and 6040."
+    if movieIdx < 0 or movieIdx >= len(movies_DNN):
+        return f"Movie index error. Please enter a movie index between 0 and {len(movies_DNN)-1}."
+    
+    topRatedSim = meanSim(topRatedIdx[userId-1], knnCosineSims)
+    movieSim = knnCosineSims[movieIdx]
+    sims = userWeight * topRatedSim + (1-userWeight) * movieSim
+    similarIdx = (-sims).argsort()
+
+    ret = f'Recommending for user {userId} with the movie "{movies_DNN.title[movieIdx]}":\n\n'
+
+    recommendIdxList = []
+    for idx in similarIdx:
+        if idx in watchedIdx[userId-1]:
+            continue
+        recommendIdxList.append(idx)
+        if len(recommendIdxList) == k:
+            break
+
+    ret += "\n".join(f"{i+1}. {movies_DNN.title[idx]}" for i, idx in enumerate(recommendIdxList))
+    return ret
+### kNN_UserMovie End
+
 ### DNN_User Start
 def get_user_recommendations_DNN(user_id):
     number_of_results =10
@@ -340,6 +375,8 @@ def home():
             result = knnMovie(user_input)
         elif algorithm == "K-Nearest Neighbors" and user_type == "User":
             result = knnUser(user_input)
+        elif algorithm == "K-Nearest Neighbors" and user_type == "Both":
+            result = knnUserMovie(user_input)
         elif algorithm == "Deep Neural Networks" and user_type == "User":
             result = get_user_recommendations_DNN(user_input)
         elif algorithm == "Deep Neural Networks" and user_type == "Movie":
