@@ -10,7 +10,7 @@
 ***
 **How to run the code ?**
 
--> directly clone the repo and enter the code path
+-> directly clone the repo and enter the "code" directory
 
 **Run** `python3 app.py` and host your local with 127.0.0.1
 <br>the UI would be index.html which includes all the interactions and the discussed different scenarios
